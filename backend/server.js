@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { registerRoomHandlers } from './handler/roomHandler';
 
 dotenv.config();
 
@@ -31,6 +32,8 @@ app.get('/health', (req, res) => {
 // Socket.io connection handler
 io.on('connnection', (socket) => {
     console.log(`Client connected: ${socket.id}`);
+
+    registerRoomHandlers(io, socket);
 
     socket.on('disconnect', () => {
         console.log(`Client Disconnected: ${socket.id}`);
