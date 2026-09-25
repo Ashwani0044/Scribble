@@ -1,0 +1,5 @@
+{
+    "watch": ["server.js", "handlers/", "utils/"],
+    "ext": "js,mjs,json",
+    "ignore": ["node_modules/"]
+  }
