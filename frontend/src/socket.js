@@ -1,16 +1,16 @@
 import { io } from 'socket.io-client';
 
-// When running inside Docker / Production, empty string forces connection to current origin
+const RENDER_BACKEND_URL = 'https://scribble-backend-u01h.onrender.com';
+
 const URL = process.env.NODE_ENV === 'production' 
-  ? '' 
+  ? RENDER_BACKEND_URL 
   : 'http://localhost:5000';
 
 export const socket = io(URL, {
   autoConnect: true,
-  transports: ['polling', 'websocket'],
+  transports: ['websocket', 'polling'], // Allow WebSocket upgrade
   reconnection: true,
   reconnectionAttempts: 5,
-  reconnectionDelay: 1000,
 });
 
 // Diagnostic logs
@@ -21,3 +21,4 @@ socket.on('connect', () => {
 socket.on('connect_error', (err) => {
   console.error('❌ Socket connection error:', err.message);
 });
+
