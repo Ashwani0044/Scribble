@@ -11,6 +11,10 @@ export const startNewTurn = (io, roomCode) => {
   const room = rooms[roomCode];
   if (!room) return;
 
+  import('../handler/canvasHandler.js').then(() => {
+    io.to(roomCode).emit('clear_canvas');
+  });
+
   // Clear existing timer if any
   if (roomTimers[roomCode]) {
     clearInterval(roomTimers[roomCode]);

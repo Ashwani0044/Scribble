@@ -1,18 +1,11 @@
 export default function WordChooser({ wordOptions, onSelectWord }) {
     return (
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'rgba(15, 23, 42, 0.9)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 50,
-        borderRadius: '8px'
-      }}>
-        <h3 style={{ color: '#38bdf8', marginBottom: '20px' }}>🎨 Pick a Word to Draw!</h3>
-        <div style={{ display: 'flex', gap: '16px' }}>
+      <div className="word-chooser-overlay">
+        <div className="chooser-card">
+          <span className="chooser-icon">✎</span>
+          <h3>Pick a Word to Draw!</h3>
+          <p>Choose quickly, then make it unmistakable.</p>
+        <div className="word-options">
           {wordOptions.map((word) => (
             <button
               key={word}
@@ -23,6 +16,7 @@ export default function WordChooser({ wordOptions, onSelectWord }) {
               {word}
             </button>
           ))}
+        </div>
         </div>
       </div>
     );

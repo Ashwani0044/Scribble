@@ -62,12 +62,16 @@ export default function Lobby({ onRoomJoined }) {
   };
 
   return (
-    <div className="card" style={{ maxWidth: '420px', margin: '0 auto' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '24px', color: '#38bdf8' }}>✏️ Scribble Clone</h1>
+    <div className="card lobby-card">
+      <div className="brand-mark"><span>✦</span> Scribble</div>
+      <p className="lobby-kicker">A quick-draw party game</p>
+      <h1 className="lobby-title">Draw it. Guess it. Win it.</h1>
+      <p className="lobby-subtitle">Gather your friends and turn a blank canvas into chaos.</p>
 
       <div className="input-group">
-        <label>Your Name</label>
+        <label htmlFor="username">Your Name</label>
         <input
+          id="username"
           type="text"
           placeholder="e.g. Alice"
           value={username}
@@ -78,16 +82,18 @@ export default function Lobby({ onRoomJoined }) {
 
       {error && <div className="error-text">{error}</div>}
 
-      <div style={{ marginTop: '20px' }}>
+      <div className="lobby-actions">
         <button type="button" className="btn btn-primary" style={{ width: '100%' }} onClick={handleCreateRoom}>
           <PlusCircle size={18} /> Create Private Room
         </button>
 
         <div className="divider">OR JOIN EXISTING</div>
 
-        <form onSubmit={handleJoinRoom} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div className="input-group" style={{ marginBottom: 0 }}>
+        <form onSubmit={handleJoinRoom} className="join-form">
+          <div className="input-group input-group-compact">
+            <label htmlFor="room-code">Room Code</label>
             <input
+              id="room-code"
               type="text"
               placeholder="Enter 6-char Room Code"
               value={roomCode}

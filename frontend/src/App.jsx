@@ -52,6 +52,8 @@ export default function App() {
     const handleSecretWord = ({ word }) => setSecretWord(word);
     const handleTimerTick = ({ timer }) => setTimer(timer);
 
+    // reason and word are supplied by the socket contract for future turn-end UI.
+    // eslint-disable-next-line no-unused-vars
     const handleTurnEnded = ({ reason, word, players }) => {
       setRoom((prev) => ({
         ...prev,
@@ -110,50 +112,42 @@ export default function App() {
   }
 
   return (
-    <div className="container" style={{ maxWidth: '1200px' }}>
+    <div className="container game-shell">
       {!room ? (
         <Lobby onRoomJoined={handleRoomJoined} />
       ) : room.gameState === 'LOBBY' ? (
         <WaitingRoom roomCode={roomCode} room={room} currentSocketId={socket.id} />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
+        <div className="game-layout">
           {/* Header Bar with Round, Timer & Masked Word */}
           <GameHeader room={room} timer={timer} secretWord={secretWord} isDrawer={isDrawer} />
 
           {/* Main Layout Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 320px', gap: '16px', alignItems: 'start', position: 'relative' }}>
+          <div className="game-grid">
             {/* Word Chooser Overlay for Drawer */}
             {room.gameState === 'CHOOSING' && isDrawer && (
               <WordChooser wordOptions={wordOptions} onSelectWord={handleSelectWord} />
             )}
 
             {/* Scoreboard Left */}
-            <div className="card" style={{ padding: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#f59e0b', fontWeight: 'bold' }}>
+            <div className="card scoreboard-card">
+              <div className="panel-title panel-title-amber">
                 <Trophy size={18} /> Scoreboard
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="scoreboard-list">
                 {room.players
                   .slice()
                   .sort((a, b) => b.score - a.score)
                   .map((p, idx) => (
-                    <div key={p.id} style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '8px',
-                      borderRadius: '6px',
-                      background: p.hasGuessed ? 'rgba(16, 185, 129, 0.15)' : '#0f172a',
-                      border: p.id === room.currentDrawer ? '1px solid #38bdf8' : '1px solid #334155'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}>
-                        <span>#{idx + 1}</span>
-                        <User size={14} color="#94a3b8" />
-                        <span style={{ fontWeight: p.id === socket.id ? 'bold' : 'normal' }}>
+                    <div key={p.id} className={`score-row ${p.hasGuessed ? 'has-guessed' : ''} ${p.id === room.currentDrawer ? 'is-drawer' : ''}`}>
+                      <div className="score-player">
+                        <span className={`rank-badge rank-${idx + 1}`}>#{idx + 1}</span>
+                        <User size={14} />
+                        <span className={p.id === socket.id ? 'current-player' : ''}>
                           {p.username} {p.id === room.currentDrawer && '✏️'}
                         </span>
                       </div>
-                      <span style={{ fontWeight: 'bold', color: '#10b981', fontSize: '0.9rem' }}>{p.score}pt</span>
+                      <span className="score-value">{p.score}pt</span>
                     </div>
                   ))}
               </div>

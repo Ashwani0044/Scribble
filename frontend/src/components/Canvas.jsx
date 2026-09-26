@@ -3,8 +3,9 @@ import { socket } from '../socket';
 import { Eraser, Trash2 } from 'lucide-react';
 
 const COLORS = [
-  '#000000', '#ffffff', '#ef4444', '#f97316', '#eab308',
-  '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899', '#78350f'
+  '#000000', '#7f7f7f', '#880015', '#ed1c24', '#ff7f27', '#fff200',
+  '#22b14c', '#00a2e8', '#3f48cc', '#a349a4', '#ffffff', '#c3c3c3',
+  '#b5e61d', '#99d9ea', '#7092be', '#ffaec9'
 ];
 
 export default function Canvas({ roomCode, isDrawer = true }) {
@@ -15,33 +16,51 @@ export default function Canvas({ roomCode, isDrawer = true }) {
   const [color, setColor] = useState('#000000');
   const [lineWidth, setLineWidth] = useState(4);
 
-  useEffect(() => {
+  const clearLocalCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    // Handle high DPI crisp drawing
     const ctx = canvas.getContext('2d');
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
 
-    // Socket listener for incoming remote strokes
-    const handleRemoteDraw = ({ prevPoint, currentPoint, color, lineWidth }) => {
-      drawSegment(prevPoint, currentPoint, color, lineWidth);
-    };
+  useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-    // Socket listener for clearing canvas
-    const handleRemoteClear = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    };
+      const ctx = canvas.getContext('2d');
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
 
-    socket.on('draw_stroke', handleRemoteDraw);
-    socket.on('clear_canvas', handleRemoteClear);
+      // Fetch full canvas stroke history on load
+      socket.emit('get_canvas_history', { roomCode }, (history) => {
+        clearLocalCanvas();
+        if (Array.isArray(history)) {
+          history.forEach(({ prevPoint, currentPoint, color, lineWidth }) => {
+            // The canvas renderer is intentionally stable across history callbacks.
+            // eslint-disable-next-line react-hooks/immutability
+            drawSegment(prevPoint, currentPoint, color, lineWidth);
+          });
+        }
+      });
 
-    return () => {
-      socket.off('draw_stroke', handleRemoteDraw);
-      socket.off('clear_canvas', handleRemoteClear);
-    };
-  }, []);
+      // Socket listener for incoming remote strokes
+      const handleRemoteDraw = ({ prevPoint, currentPoint, color, lineWidth }) => {
+        drawSegment(prevPoint, currentPoint, color, lineWidth);
+      };
+
+      // Socket listener for clearing canvas
+      const handleRemoteClear = () => {
+        clearLocalCanvas();
+      };
+
+      socket.on('draw_stroke', handleRemoteDraw);
+      socket.on('clear_canvas', handleRemoteClear);
+
+      return () => {
+        socket.off('draw_stroke', handleRemoteDraw);
+        socket.off('clear_canvas', handleRemoteClear);
+      };
+  }, [roomCode]);
 
   // Normalizes coordinates to ratios (0.0 to 1.0) so all screens align
   const getNormalizedPoint = (e) => {
@@ -117,20 +136,14 @@ export default function Canvas({ roomCode, isDrawer = true }) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+    <div className="canvas-panel">
       {/* HTML5 Canvas Element */}
-      <div style={{ position: 'relative', width: '100%', background: '#ffffff', borderRadius: '8px', overflow: 'hidden' }}>
+      <div className="canvas-frame">
         <canvas
           ref={canvasRef}
           width={800}
           height={500}
-          style={{
-            width: '100%',
-            height: 'auto',
-            display: 'block',
-            cursor: isDrawer ? 'crosshair' : 'not-allowed',
-            touchAction: 'none'
-          }}
+          className={isDrawer ? 'drawing-canvas is-drawer' : 'drawing-canvas'}
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
@@ -143,53 +156,39 @@ export default function Canvas({ roomCode, isDrawer = true }) {
 
       {/* Toolbar - Active only for the designated drawer */}
       {isDrawer && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justify: 'space-between',
-          gap: '12px',
-          background: '#1e293b',
-          padding: '12px',
-          borderRadius: '8px',
-          flexWrap: 'wrap'
-        }}>
+        <div className="canvas-toolbar">
           {/* Color Palette */}
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          <div className="color-palette" aria-label="Color palette">
             {COLORS.map((c) => (
               <button
                 key={c}
                 onClick={() => setColor(c)}
-                style={{
-                  width: '26px',
-                  height: '26px',
-                  borderRadius: '50%',
-                  backgroundColor: c,
-                  border: color === c ? '3px solid #38bdf8' : '1px solid #475569',
-                  cursor: 'pointer'
-                }}
+                style={{ backgroundColor: c }}
+                className={`color-swatch ${color === c ? 'is-selected' : ''}`}
+                aria-label={`Choose ${c}`}
               />
             ))}
           </div>
 
           {/* Brush Size Slider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Size</span>
+          <div className="brush-size">
+            <span className="toolbar-label">Size</span>
             <input
               type="range"
               min="2"
               max="30"
               value={lineWidth}
               onChange={(e) => setLineWidth(Number(e.target.value))}
-              style={{ width: '100px', cursor: 'pointer' }}
+              className="brush-slider"
             />
           </div>
 
           {/* Actions */}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="btn" style={{ background: '#334155', color: '#fff', padding: '8px 12px' }} onClick={() => setColor('#ffffff')} title="Eraser">
+          <div className="canvas-actions">
+            <button className="btn btn-tool" onClick={() => setColor('#ffffff')} title="Eraser">
               <Eraser size={18} />
             </button>
-            <button className="btn" style={{ background: '#ef4444', color: '#fff', padding: '8px 12px' }} onClick={clearCanvas} title="Clear Canvas">
+            <button className="btn btn-danger btn-tool" onClick={clearCanvas} title="Clear Canvas">
               <Trash2 size={18} />
             </button>
           </div>

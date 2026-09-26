@@ -1,14 +1,25 @@
+const roomDrawings = {};
 
 export const registerCanvasHandlers = (io, socket) => {
-    // Broadcast drawing strokes to everyone in the room except sender
-    socket.on('draw_stroke', ({ roomCode, drawData }) => {
-      if (!roomCode || !drawData) return;
-      socket.to(roomCode).emit('draw_stroke', drawData);
-    });
-  
-    // Broadcast clear canvas signal to the entire room
-    socket.on('clear_canvas', ({ roomCode }) => {
-      if (!roomCode) return;
-      io.to(roomCode).emit('clear_canvas');
-    });
+  // Store incoming strokes and broadcast to room
+  socket.on('draw_stroke', ({ roomCode, drawData }) => {
+    if (!roomDrawings[roomCode]) {
+      roomDrawings[roomCode] = [];
+    }
+    roomDrawings[roomCode].push(drawData);
+    socket.to(roomCode).emit('draw_stroke', drawData);
+  });
+
+  // Clear memory buffer and notify room
+  socket.on('clear_canvas', ({ roomCode }) => {
+    roomDrawings[roomCode] = [];
+    io.to(roomCode).emit('clear_canvas');
+  });
+
+  // Provide canvas stroke history for mid-game sync
+  socket.on('get_canvas_history', ({ roomCode }, callback) => {
+    if (callback) {
+      callback(roomDrawings[roomCode] || []);
+    }
+  });
 };
