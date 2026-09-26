@@ -86,7 +86,7 @@ export default function Lobby({ onRoomJoined }) {
             <input
               id="username"
               type="text"
-              placeholder="e.g. Alice"
+              placeholder="Enter your name"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               maxLength={15}
