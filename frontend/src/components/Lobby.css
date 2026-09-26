@@ -1,0 +1,145 @@
+.lobby-wrapper {
+    position: relative;
+    min-height: 100vh;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 1rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    background: radial-gradient(circle at 50% 20%, #1e1e2f 0%, #0f0f18 100%);
+  }
+
+.lobby-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Floating ambient background doodles */
+.floating-doodle {
+  position: absolute;
+  z-index: 1;
+  font-size: 3.5rem;
+  opacity: 0.15;
+  user-select: none;
+  pointer-events: none;
+  animation: floatAnim 7s ease-in-out infinite alternate;
+}
+
+.float-1 { top: 8%; left: 8%; animation-delay: 0s; }
+.float-2 { top: 65%; left: 10%; animation-delay: 1.5s; }
+.float-3 { top: 12%; right: 8%; animation-delay: 3s; }
+.float-4 { top: 70%; right: 10%; animation-delay: 4.5s; }
+.float-5 { top: 45%; left: 3%; animation-delay: 2s; }
+
+@keyframes floatAnim {
+  0% { transform: translateY(0px) rotate(-10deg); }
+  100% { transform: translateY(-22px) rotate(10deg); }
+}
+
+/* How to Play Section */
+.how-to-play-container {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.how-to-play-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.accent-sparkle {
+  color: #6366f1;
+}
+
+.how-to-play-header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f3f4f6;
+  letter-spacing: 0.5px;
+}
+
+/* 3-Step Instruction Grid */
+.instructions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.instruction-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.instruction-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.step-badge {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.15);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon {
+  color: #818cf8;
+  margin-bottom: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+.instruction-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+}
+
+.instruction-card p {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Responsive adjustment for small screens */
+@media (max-width: 768px) {
+  .instructions-grid {
+    grid-template-columns: 1fr;
+  }
+}
