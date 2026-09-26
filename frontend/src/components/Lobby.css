@@ -10,7 +10,7 @@
     padding: 3rem 1rem;
     box-sizing: border-box;
     overflow-x: hidden;
-    background: radial-gradient(circle at 50% 20%, #1e1e2f 0%, #0f0f18 100%);
+    background: radial-gradient(circle at 50% 20%, #000000 0%, #010102 100%);
   }
 
 .lobby-content {

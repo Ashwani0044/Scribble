@@ -52,8 +52,6 @@ export default function App() {
     const handleSecretWord = ({ word }) => setSecretWord(word);
     const handleTimerTick = ({ timer }) => setTimer(timer);
 
-    // reason and word are supplied by the socket contract for future turn-end UI.
-    // eslint-disable-next-line no-unused-vars
     const handleTurnEnded = ({ reason, word, players }) => {
       setRoom((prev) => ({
         ...prev,
@@ -107,60 +105,72 @@ export default function App() {
 
   const isDrawer = room?.currentDrawer === socket.id;
 
-  if (room?.gameState === 'GAME_OVER' && podium) {
-    return <GameOver podium={podium} onPlayAgain={handlePlayAgain} />;
-  }
-
   return (
-    <div className="container game-shell">
-      {!room ? (
-        <Lobby onRoomJoined={handleRoomJoined} />
-      ) : room.gameState === 'LOBBY' ? (
-        <WaitingRoom roomCode={roomCode} room={room} currentSocketId={socket.id} />
-      ) : (
-        <div className="game-layout">
-          {/* Header Bar with Round, Timer & Masked Word */}
-          <GameHeader room={room} timer={timer} secretWord={secretWord} isDrawer={isDrawer} />
+    <div className="app-global-wrapper">
+      {/* Global Background Doodles (Persists Across All Screens) */}
+      <div className="floating-doodle float-1">✏️</div>
+      <div className="floating-doodle float-2">🎨</div>
+      <div className="floating-doodle float-3">💬</div>
+      <div className="floating-doodle float-4">🏆</div>
+      <div className="floating-doodle float-5">💡</div>
 
-          {/* Main Layout Grid */}
-          <div className="game-grid">
-            {/* Word Chooser Overlay for Drawer */}
-            {room.gameState === 'CHOOSING' && isDrawer && (
-              <WordChooser wordOptions={wordOptions} onSelectWord={handleSelectWord} />
-            )}
+      <div className="container game-shell">
+        {room?.gameState === 'GAME_OVER' && podium ? (
+          <GameOver podium={podium} onPlayAgain={handlePlayAgain} />
+        ) : !room ? (
+          <Lobby onRoomJoined={handleRoomJoined} />
+        ) : room.gameState === 'LOBBY' ? (
+          <WaitingRoom roomCode={roomCode} room={room} currentSocketId={socket.id} />
+        ) : (
+          <div className="game-layout">
+            {/* Header Bar with Round, Timer & Masked Word */}
+            <GameHeader room={room} timer={timer} secretWord={secretWord} isDrawer={isDrawer} />
 
-            {/* Scoreboard Left */}
-            <div className="card scoreboard-card">
-              <div className="panel-title panel-title-amber">
-                <Trophy size={18} /> Scoreboard
-              </div>
-              <div className="scoreboard-list">
-                {room.players
-                  .slice()
-                  .sort((a, b) => b.score - a.score)
-                  .map((p, idx) => (
-                    <div key={p.id} className={`score-row ${p.hasGuessed ? 'has-guessed' : ''} ${p.id === room.currentDrawer ? 'is-drawer' : ''}`}>
-                      <div className="score-player">
-                        <span className={`rank-badge rank-${idx + 1}`}>#{idx + 1}</span>
-                        <User size={14} />
-                        <span className={p.id === socket.id ? 'current-player' : ''}>
-                          {p.username} {p.id === room.currentDrawer && '✏️'}
-                        </span>
+            {/* Main Layout Grid */}
+            <div className="game-grid">
+              {/* Word Chooser Overlay for Drawer */}
+              {room.gameState === 'CHOOSING' && isDrawer && (
+                <WordChooser wordOptions={wordOptions} onSelectWord={handleSelectWord} />
+              )}
+
+              {/* Scoreboard Left */}
+              <div className="card scoreboard-card">
+                <div className="panel-title panel-title-amber">
+                  <Trophy size={18} /> Scoreboard
+                </div>
+                <div className="scoreboard-list">
+                  {room.players
+                    .slice()
+                    .sort((a, b) => b.score - a.score)
+                    .map((p, idx) => (
+                      <div
+                        key={p.id}
+                        className={`score-row ${p.hasGuessed ? 'has-guessed' : ''} ${
+                          p.id === room.currentDrawer ? 'is-drawer' : ''
+                        }`}
+                      >
+                        <div className="score-player">
+                          <span className={`rank-badge rank-${idx + 1}`}>#{idx + 1}</span>
+                          <User size={14} />
+                          <span className={p.id === socket.id ? 'current-player' : ''}>
+                            {p.username} {p.id === room.currentDrawer && '✏️'}
+                          </span>
+                        </div>
+                        <span className="score-value">{p.score}pt</span>
                       </div>
-                      <span className="score-value">{p.score}pt</span>
-                    </div>
-                  ))}
+                    ))}
+                </div>
               </div>
+
+              {/* Canvas Center */}
+              <Canvas roomCode={roomCode} isDrawer={isDrawer && room.gameState === 'DRAWING'} />
+
+              {/* Chat Right */}
+              <Chat roomCode={roomCode} isDrawer={isDrawer} currentSocketId={socket.id} />
             </div>
-
-            {/* Canvas Center */}
-            <Canvas roomCode={roomCode} isDrawer={isDrawer && room.gameState === 'DRAWING'} />
-
-            {/* Chat Right */}
-            <Chat roomCode={roomCode} isDrawer={isDrawer} currentSocketId={socket.id} />
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

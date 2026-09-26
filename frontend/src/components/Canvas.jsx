@@ -186,7 +186,7 @@ export default function Canvas({ roomCode, isDrawer = true }) {
           {/* Actions */}
           <div className="canvas-actions">
             <button className="btn btn-tool" onClick={() => setColor('#ffffff')} title="Eraser">
-              <Eraser size={18} />
+              <Eraser color="#4e4c4c" size={18} />
             </button>
             <button className="btn btn-danger btn-tool" onClick={clearCanvas} title="Clear Canvas">
               <Trash2 size={18} />
